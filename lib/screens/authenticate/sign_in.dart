@@ -1,4 +1,6 @@
 import 'package:brew/services/auth.dart';
+import 'package:brew/shared/constants.dart';
+import 'package:brew/shared/loading.dart';
 import 'package:flutter/material.dart';
 
 
@@ -14,6 +16,7 @@ class _SignInState extends State<SignIn> {
 
   final AuthService _auth = AuthService();
   final _formKey = GlobalKey<FormState>();
+  bool loading = false;
 
   // text field state
   String email = '';
@@ -23,7 +26,7 @@ class _SignInState extends State<SignIn> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return loading ? Loading() :  Scaffold(
       backgroundColor: Colors.brown[100],
       appBar: AppBar(
         backgroundColor: Colors.brown[400],
@@ -53,18 +56,8 @@ class _SignInState extends State<SignIn> {
                   });
                 },
                 validator: (val) => val!.isEmpty ? 'Enter an email' : null,
-                decoration: InputDecoration(
-                  hintText: 'Email',
-                  fillColor: Colors.white,
-                  filled: true,
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white, width: 2.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.pink, width: 2.0),
-                ),
+                decoration: textInputDecoration.copyWith(hintText: 'Email'),
               ),
-),
 
               SizedBox(height: 20,),
               TextFormField(
@@ -74,27 +67,21 @@ class _SignInState extends State<SignIn> {
                   });
                 },
                 validator: (val) => val!.length < 6 ? 'Enter a password 6+ chars long' : null,
-                decoration: InputDecoration(
-                  hintText: 'Password',
-                  fillColor: Colors.white,
-                  filled: true,
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white, width: 2.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.pink, width: 2.0),
-                  ),
-                ),
+                decoration: textInputDecoration.copyWith(hintText: 'Password'),
                 obscureText: true,
               ),
               SizedBox(height: 20,),
               ElevatedButton(
                 onPressed: () async {
                   if(_formKey.currentState!.validate()){
+                    setState(() {
+                      loading = true;
+                    });
                     dynamic result = await _auth.signInWithEmailAndPassword(email, password);
                     if(result == null){
                       setState(() {
                         error = 'Could not sign in with those credentials';
+                        loading = false;
                       });
                     }
                   }

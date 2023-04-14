@@ -1,6 +1,8 @@
+import 'package:brew/shared/loading.dart';
 import 'package:flutter/material.dart';
 
 import '../../services/auth.dart';
+import '../../shared/constants.dart';
 
 
 class Register extends StatefulWidget {
@@ -18,6 +20,7 @@ class _RegisterState extends State<Register> {
 
   final AuthService _auth = AuthService();
   final _formKey = GlobalKey<FormState>();
+  bool loading = false;
 
 
   // text field state
@@ -29,7 +32,7 @@ class _RegisterState extends State<Register> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return loading ? Loading() : Scaffold(
       backgroundColor: Colors.brown[100],
       appBar: AppBar(
         backgroundColor: Colors.brown[400],
@@ -59,17 +62,7 @@ class _RegisterState extends State<Register> {
                       email = val;
                     });
                   },
-                  decoration: InputDecoration(
-                    hintText: 'Email',
-                    fillColor: Colors.white,
-                    filled: true,
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 2.0),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.pink, width: 2.0),
-                    ),
-                  ),
+                  decoration: textInputDecoration.copyWith(hintText: 'Email'),
                 ),
 
                 SizedBox(height: 20,),
@@ -80,27 +73,21 @@ class _RegisterState extends State<Register> {
                       password = val;
                     });
                   },
-                  decoration: InputDecoration(
-                    hintText: 'Password',
-                    fillColor: Colors.white,
-                    filled: true,
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 2.0),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.pink, width: 2.0),
-                    ),
-                  ),
+                  decoration: textInputDecoration.copyWith(hintText: 'Password'),
                   obscureText: true,
                 ),
                 SizedBox(height: 20,),
                 ElevatedButton(
                   onPressed: () async {
                     if(_formKey.currentState!.validate()){
+                      setState(() {
+                        loading = true;
+                      });
                       dynamic result = await _auth.registerWithEmailAndPassword(email, password);
                       if(result == null){
                         setState(() {
                           error = 'Please supply a valid email';
+                          loading = false;
                         });
                       }
                     }
