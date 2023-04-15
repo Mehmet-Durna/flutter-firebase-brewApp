@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'brew_tile.dart';
+
 
 
 
@@ -26,6 +28,11 @@ brews?.forEach((brew) {
     });
 
 
-    return const Placeholder();
+    return ListView.builder(
+      itemCount: brews?.length,
+      itemBuilder: (context, index) {
+        return BrewTile(brew: brews?[index]);
+      },
+    );
   }
 }
