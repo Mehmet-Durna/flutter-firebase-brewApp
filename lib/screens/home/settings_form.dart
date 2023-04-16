@@ -1,4 +1,5 @@
 import 'package:brew/models/model_user.dart';
+import 'package:brew/shared/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -33,6 +34,9 @@ class _SettingsFormState extends State<SettingsForm> {
       stream: DatabaseService(uid: user!.uid).userData,
       builder: (context, snapshot) {
         if(snapshot.hasData){
+
+          UserData userData = snapshot.data!;
+
           return Form(
               key: _formKey,
               child: Column(
@@ -43,6 +47,7 @@ class _SettingsFormState extends State<SettingsForm> {
                   ),
                   const SizedBox(height: 20.0),
                   TextFormField(
+                    initialValue: userData.name,
                     decoration: const InputDecoration(
                       hintText: 'Name',
                     ),
@@ -55,7 +60,7 @@ class _SettingsFormState extends State<SettingsForm> {
                     decoration: const InputDecoration(
                       hintText: 'Sugars',
                     ),
-                    value: _currentSugars ?? '0',
+                    value: _currentSugars ?? userData.sugars,
                     items: sugars.map((sugar) {
                       return DropdownMenuItem(
                         value: sugar,
@@ -67,8 +72,8 @@ class _SettingsFormState extends State<SettingsForm> {
 
                   // slider
                   Slider(
-                    value: (_currentStrength ?? 100).toDouble(),
-                    activeColor: Colors.brown[_currentStrength ?? 100],
+                    value: (_currentStrength ?? userData.strength!).toDouble(),
+                    activeColor: Colors.brown[_currentStrength ?? userData.strength!],
 
                     min: 100.0,
                     max: 900.0,
@@ -92,7 +97,7 @@ class _SettingsFormState extends State<SettingsForm> {
           );
         }
         else{
-          return const Text('Loading');
+          return Loading();
         }
 
       }
