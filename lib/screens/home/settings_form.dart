@@ -1,4 +1,8 @@
+import 'package:brew/models/model_user.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../services/database.dart';
 
 
 
@@ -22,62 +26,76 @@ class _SettingsFormState extends State<SettingsForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Column(
-        children: <Widget>[
-          Text(
-            'Update your brew settings.',
-            style: const TextStyle(fontSize: 18.0),
-          ),
-          const SizedBox(height: 20.0),
-          TextFormField(
-            decoration: const InputDecoration(
-              hintText: 'Name',
-            ),
-            validator: (val) => val!.isEmpty ? 'Please enter a name' : null,
-            onChanged: (val) => setState(() => _currentName = val),
-          ),
-          const SizedBox(height: 20.0),
-          // dropdown
-          DropdownButtonFormField(
-            decoration: const InputDecoration(
-              hintText: 'Sugars',
-            ),
-            value: _currentSugars ?? '0',
-            items: sugars.map((sugar) {
-              return DropdownMenuItem(
-                value: sugar,
-                child: Text('$sugar sugars'),
-              );
-            }).toList(),
-            onChanged: (val) => setState(() => _currentSugars = val.toString()),
-          ),
 
-          // slider
-          Slider(
-            value: (_currentStrength ?? 100).toDouble(),
-            activeColor: Colors.brown[_currentStrength ?? 100],
+    final user = Provider.of<ModelUser?>(context);
 
-            min: 100.0,
-            max: 900.0,
-            divisions: 8,
-            onChanged: (val) => setState(() => _currentStrength = val.round()),
-          ),
-          ElevatedButton(
-            child: const Text(
-              'Update',
-              style: TextStyle(color: Colors.white),
-            ),
-            onPressed: () async {
-              print(_currentName);
-              print(_currentSugars);
-              print(_currentStrength);
-            },
-          ),
+    return StreamBuilder<UserData>(
+      stream: DatabaseService(uid: user!.uid).userData,
+      builder: (context, snapshot) {
+        if(snapshot.hasData){
+          return Form(
+              key: _formKey,
+              child: Column(
+                children: <Widget>[
+                  Text(
+                    'Update your brew settings.',
+                    style: const TextStyle(fontSize: 18.0),
+                  ),
+                  const SizedBox(height: 20.0),
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      hintText: 'Name',
+                    ),
+                    validator: (val) => val!.isEmpty ? 'Please enter a name' : null,
+                    onChanged: (val) => setState(() => _currentName = val),
+                  ),
+                  const SizedBox(height: 20.0),
+                  // dropdown
+                  DropdownButtonFormField(
+                    decoration: const InputDecoration(
+                      hintText: 'Sugars',
+                    ),
+                    value: _currentSugars ?? '0',
+                    items: sugars.map((sugar) {
+                      return DropdownMenuItem(
+                        value: sugar,
+                        child: Text('$sugar sugars'),
+                      );
+                    }).toList(),
+                    onChanged: (val) => setState(() => _currentSugars = val.toString()),
+                  ),
 
-        ],
-      )
+                  // slider
+                  Slider(
+                    value: (_currentStrength ?? 100).toDouble(),
+                    activeColor: Colors.brown[_currentStrength ?? 100],
+
+                    min: 100.0,
+                    max: 900.0,
+                    divisions: 8,
+                    onChanged: (val) => setState(() => _currentStrength = val.round()),
+                  ),
+                  ElevatedButton(
+                    child: const Text(
+                      'Update',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onPressed: () async {
+                      print(_currentName);
+                      print(_currentSugars);
+                      print(_currentStrength);
+                    },
+                  ),
+
+                ],
+              )
+          );
+        }
+        else{
+          return const Text('Loading');
+        }
+
+      }
     );
   }
 }
